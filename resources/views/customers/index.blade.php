@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.pos')
 
 @section('page_title', 'Customer Accounts')
 
@@ -27,7 +27,16 @@
                     <td>{{ $customer->full_name }}</td>
                     <td>{{ $customer->email }}</td>
                     <td>{{ $customer->phone }}</td>
-                    <td><a href="{{ route('customers.edit', $customer) }}">Edit</a></td>
+                    <td>
+                        <a href="{{ route('customers.show', $customer) }}">View</a> |
+                        <a href="{{ route('customers.edit', $customer) }}">Edit</a> |
+                        <form class="inline-form" method="POST" action="{{ route('customers.destroy', $customer) }}"
+                              onsubmit="return confirm('Delete this customer?');">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-danger btn-small">Delete</button>
+                        </form>
+                    </td>
                 </tr>
             @endforeach
         </tbody>

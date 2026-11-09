@@ -10,21 +10,21 @@ use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
-    // User Accounts page (/users).
-    public function list()
+    // List all users (GET /users).
+    public function index()
     {
         $users = User::orderBy('id')->get();
 
         return view('users.index', ['users' => $users]);
     }
 
-    // Show the empty Create User form (/users/create).
+    // Show the empty create form (GET /users/create).
     public function create()
     {
         return view('users.create', ['user' => new User()]);
     }
 
-    // Validate the submitted form, then insert the record.
+    // Validate the form, then insert the record (POST /users).
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -34,17 +34,23 @@ class UserController extends Controller
 
         User::create($validated);
 
-        return redirect()->route('users.list')
+        return redirect()->route('users.index')
             ->with('status', 'User created successfully.');
     }
 
-    // Show the edit form pre-filled with the existing record.
+    // Show one user (GET /users/{user}).
+    public function show(User $user)
+    {
+        return view('users.show', ['user' => $user]);
+    }
+
+    // Show the pre-filled edit form (GET /users/{user}/edit).
     public function edit(User $user)
     {
         return view('users.edit', ['user' => $user]);
     }
 
-    // Validate the form (including the avatar), then update the record.
+    // Validate the form (including the avatar), then update the record (PUT /users/{user}).
     public function update(Request $request, User $user)
     {
         $validated = $request->validate([
@@ -75,8 +81,27 @@ class UserController extends Controller
 
         $user->save();
 
-        return redirect()->route('users.list')
+        return redirect()->route('users.index')
             ->with('status', 'User updated successfully.');
+    }
+
+    // Delete the record and its avatar file (DELETE /users/{user}).
+    public function destroy(Request $request, User $user)
+    {
+        // Do not let someone delete the account they are logged in with.
+        if ($request->user()->is($user)) {
+            return redirect()->route('users.index')
+                ->with('status', 'You cannot delete the account you are currently logged in with.');
+        }
+
+        if ($user->avatar) {
+            Storage::disk('public')->delete($user->avatar);
+        }
+
+        $user->delete();
+
+        return redirect()->route('users.index')
+            ->with('status', 'User deleted successfully.');
     }
 
     /**

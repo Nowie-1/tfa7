@@ -38,5 +38,5 @@
     </div>
 
     <button type="submit" class="btn">{{ $editing ? 'Save Changes' : 'Create Customer' }}</button>
-    <a class="btn btn-secondary" href="{{ route('customers.list') }}">Cancel</a>
+    <a class="btn btn-secondary" href="{{ route('customers.index') }}">Cancel</a>
 </form>

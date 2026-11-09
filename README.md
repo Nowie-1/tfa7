@@ -1,40 +1,47 @@
-# Corner Store POS (IT0049 - TFA7)
+# Corner Store POS (IT0049 - TFA8)
 
-A small Laravel POS with four pages: Landing (`/`), About (`/about`), Customer Accounts (`/customers`) and User Accounts (`/users`), plus create and edit forms for both (`/customers/create`, `/users/create`, and `/customers/{id}/edit`, `/users/{id}/edit`). The two account pages now read their data from a database through Eloquent models (TFA6), and the forms add validation and avatar upload (TFA7). Migrations create the `customers` and `users` tables and seeders fill them with sample data.
+Laravel POS app with a database (TFA6), create/edit forms and avatar upload (TFA7), and
+resource controllers with Laravel Breeze authentication (TFA8).
 
-## What you need
+## Pages
+- Public: Landing (`/`), About (`/about`), Login (`/login`), Register (`/register`)
+- Login required: Dashboard (`/dashboard`), Customer Accounts (`/customers`), User Accounts (`/users`)
+  and their create, show, edit and delete pages. Visiting a protected page while logged out redirects to `/login`.
 
-PHP 8.3 or newer (XAMPP has it), Composer, and Git.
+## Requirements
+PHP 8.3+ with the GD extension, Composer, Node.js and npm, and MySQL (or SQLite for quick local runs).
 
-## How to run it
+## Setup
+1. Clone the repository and open the folder.
+2. `composer install`
+3. Copy `.env.example` to `.env`, then `php artisan key:generate`
+4. For MySQL, set `DB_CONNECTION=mysql` and the `DB_*` values in `.env` (SQLite works with the defaults; answer **yes** if Artisan offers to create `database/database.sqlite`).
+5. `php artisan storage:link` (needed so uploaded avatars can be displayed)
+6. `php artisan migrate --seed`
+7. `npm install` then `npm run build` (builds the Breeze login/register styles; use `npm run dev` while developing)
+8. `php artisan serve`, then open http://127.0.0.1:8000
 
-1. Clone the repo and open the folder: `git clone <your-repo-url>` then `cd <folder-name>`
-2. Install packages: `composer install`
-3. Create your environment file: `copy .env.example .env` on Windows, or `cp .env.example .env`
-4. Generate the app key: `php artisan key:generate`
-5. Link the public storage folder (needed so uploaded avatars can be displayed): `php artisan storage:link`
-6. Create the tables and sample data: `php artisan migrate --seed` (with the default SQLite setting, answer **yes** if Artisan offers to create `database/database.sqlite`). For MySQL, set `DB_CONNECTION=mysql` and the `DB_*` values in `.env` first.
-7. Start the server: `php artisan serve`
-8. Visit http://127.0.0.1:8000
+## Logging in
+Click **Register** to create an account (full name, email, password). The seeded sample users have no
+email or password, so they cannot log in; they are only records shown on the User Accounts page.
+
+## Routing and authentication
+- `Route::resource('customers', CustomerController::class)` and `Route::resource('users', UserController::class)` map the standard
+  index, create, store, show, edit, update and destroy methods.
+- Both resources (and the dashboard and profile pages) sit inside `Route::middleware('auth')->group(...)` in `routes/web.php`.
+- Authentication was scaffolded with Laravel Breeze (Blade stack). Its routes are in `routes/auth.php`.
+- Breeze expects `name`, `email` and `password`. The POS `users` table keeps `username` and `full_name`, so `User` maps
+  `name` to `full_name` and generates a unique `username` from the email when someone registers. Passwords are hashed by Laravel's default `hashed` cast.
 
 ## Database
+- customers: id, full_name, email, phone, timestamps
+- users: id, username (unique), full_name, avatar, email (unique, nullable), email_verified_at, password (nullable), remember_token, timestamps
 
-- `customers`: id, full_name, email, phone, timestamps
-- `users`: id, username (unique), full_name, avatar (nullable, stores a path such as `avatars/<uuid>.webp`), timestamps
+Rebuild everything with `php artisan migrate:fresh --seed`.
 
-Migrations are in `database/migrations`, seeders in `database/seeders` (CustomerSeeder, UserSeeder), models in `app/Models` (Customer, User). To rebuild everything from scratch: `php artisan migrate:fresh --seed`.
+## Avatars
+Avatar upload (user Edit page): JPG, PNG or WebP up to 2 MB, cropped to a 200x200 WebP with Laravel's image API
+(Intervention Image, GD driver), stored with `Storage::disk('public')`; only the path is saved in `users.avatar`.
 
-## Forms, validation and avatars (TFA7)
-
-- Customer: `full_name` required, `email` required and valid, `phone` optional.
-- User: `username` required and unique, `full_name` required.
-- Avatar (user Edit page only): must be a JPG, PNG or WebP image no larger than 2 MB. The upload is cropped to a 200x200 WebP thumbnail with Laravel's image API (powered by Intervention Image, GD driver), saved with `Storage::disk('public')`, and only its path (e.g. `avatars/<uuid>.webp`) is stored in `users.avatar`. Users without an avatar show `public/images/avatar-placeholder.svg`.
-- The image feature needs the PHP **GD** extension and the `intervention/image` package (already listed in `composer.json`, so `composer install` installs it). Make sure `extension=gd` is enabled in `php.ini` (XAMPP: `C:\xampp\php\php.ini`)..
-
-## Where things are
-
-Routes are in `routes/web.php`. Controllers are in `app/Http/Controllers` (PageController, CustomerController, UserController). Blade views are in `resources/views`, with the shared layout in `layouts/app.blade.php`.
-
-## Live site
-
-<your-hosted-url>
+## Live demo
+<paste your hosted URL here>

@@ -44,5 +44,5 @@
     @endif
 
     <button type="submit" class="btn">{{ $editing ? 'Save Changes' : 'Create User' }}</button>
-    <a class="btn btn-secondary" href="{{ route('users.list') }}">Cancel</a>
+    <a class="btn btn-secondary" href="{{ route('users.index') }}">Cancel</a>
 </form>

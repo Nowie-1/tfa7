@@ -69,6 +69,7 @@ return array(
     'Laravel\\Prompts\\' => array($vendorDir . '/laravel/prompts/src'),
     'Laravel\\Pao\\' => array($vendorDir . '/laravel/pao/src'),
     'Laravel\\Pail\\' => array($vendorDir . '/laravel/pail/src'),
+    'Laravel\\Breeze\\' => array($vendorDir . '/laravel/breeze/src'),
     'Laravel\\AgentDetector\\' => array($vendorDir . '/laravel/agent-detector/src'),
     'Intervention\\Image\\' => array($vendorDir . '/intervention/image/src'),
     'Intervention\\Gif\\' => array($vendorDir . '/intervention/gif/src'),
